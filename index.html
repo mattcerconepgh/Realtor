@@ -82,6 +82,9 @@
     transition:opacity 0.15s ease;
     z-index:60;
   }
+  .nav-dropdown-menu::before{
+    content:""; position:absolute; left:0; right:0; bottom:100%; height:16px;
+  }
   .nav-dropdown:hover .nav-dropdown-menu, .nav-dropdown:focus-within .nav-dropdown-menu{
     opacity:1; visibility:visible; pointer-events:auto;
   }
@@ -390,11 +393,7 @@
   }
   .disclaimer{font-size:12px; color:rgba(233,229,219,0.5); max-width:70ch; margin-top:18px;}
 
-  /* Resources: off the normal front-page flow, reachable only via the Menu dropdown link */
-  #resources{display:none;}
-  #resources:target{display:block;}
-
-  /* Blog: same treatment, off the normal front-page flow */
+  /* Blog: off the normal front-page flow, reachable only via the Menu dropdown link */
   #blog{display:none;}
   #blog:target{display:block;}
 
@@ -419,7 +418,7 @@
         <button class="nav-dropdown-trigger" type="button">Menu</button>
         <div class="nav-dropdown-menu">
           <a href="#invest">Services</a>
-          <a href="#resources">Resources</a>
+          <a href="resources.html">Resources</a>
           <a href="#blog">Blog</a>
           <a href="#contact">Contact</a>
         </div>
@@ -543,36 +542,6 @@
         <p>I'm an investment focused agent and real estate investor helping buyers acquire, sell, and scale across Pittsburgh — single-family homes, multifamily, and small commercial.</p>
         <p>As an active rental property owner myself, I underwrite deals the way an investor does: rent comps first, rehab budget second, offer price last. That's the same order I walk every client through, whether it's a first duplex or a fifth property in a growing portfolio.</p>
         <p>A little about me: when I'm not working you can find me hiking, fishing, hunting, or golfing.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="resources" style="background:var(--paper-dim);">
-  <div class="wrap">
-    <div class="section-head">
-      <h2>Resources</h2>
-    </div>
-    <div class="resource-grid">
-      <div class="resource-card">
-        <h3>Beginners Guide to Real Estate Investing</h3>
-        <p>A short, simple primer on the terms, math, and process, built for someone buying their first investment property.</p>
-        <a class="kicker-link" href="beginners-guide-to-real-estate-investing.pdf" target="_blank" rel="noopener">Download the guide →</a>
-      </div>
-      <div class="resource-card">
-        <h3>First deal, step by step</h3>
-        <p>A plain walkthrough of financing, underwriting, and closing for your first Pittsburgh rental.</p>
-        <a class="kicker-link" href="first-deal-step-by-step.pdf" target="_blank" rel="noopener">Download the guide →</a>
-      </div>
-      <div class="resource-card">
-        <h3>Referrals for all your needs</h3>
-        <p>Trusted lenders, contractors, property managers, and other professionals I've worked with directly and can put you in touch with.</p>
-        <a class="kicker-link" href="#contact">Contact me to learn more →</a>
-      </div>
-      <div class="resource-card">
-        <h3>Sample deal underwriting</h3>
-        <p>A real example of how I break down the numbers on a potential investment, address removed for privacy.</p>
-        <a class="kicker-link" href="sample-deal-underwriting.pdf" target="_blank" rel="noopener">See a sample →</a>
       </div>
     </div>
   </div>
