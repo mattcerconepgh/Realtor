@@ -105,9 +105,27 @@
     white-space:nowrap;
   }
   .navtoggle{display:none;}
+  .mobile-menu{
+    display:none;
+    flex-direction:column;
+    position:absolute; top:100%; left:0; right:0;
+    background:var(--charcoal);
+    border-top:2px solid var(--gold);
+    border-bottom:1px solid var(--line-dark);
+    z-index:55;
+  }
+  .mobile-menu.open{display:flex;}
+  .mobile-menu a{
+    padding:16px 24px; color:var(--paper); text-decoration:none; font-size:15px;
+    border-bottom:1px solid var(--line-dark);
+  }
+  .mobile-menu a:last-child{border-bottom:none;}
+  .mobile-menu a:hover{background:rgba(233,229,219,0.06); color:var(--gold);}
+  .mobile-menu .mobile-phonebtn{color:var(--gold); font-family:'IBM Plex Mono', monospace;}
   @media (max-width:860px){
     nav .navlink{display:none;}
-    .navtoggle{display:inline-block; color:var(--paper); background:none; border:1px solid var(--line-dark); padding:8px 12px; font-family:'IBM Plex Mono',monospace; font-size:12px;}
+    nav .phonebtn{display:none;}
+    .navtoggle{display:inline-block; color:var(--paper); background:none; border:1px solid var(--line-dark); padding:8px 12px; font-family:'IBM Plex Mono',monospace; font-size:12px; cursor:pointer;}
   }
 
   /* ---------- hero ---------- */
@@ -412,8 +430,19 @@
           <a href="#contact">Contact</a>
         </div>
       </div>
-      <a class="phonebtn" href="tel:7246817256">724-681-7256</a>
+            <a class="phonebtn" href="tel:7246817256">724-681-7256</a>
+      <button class="navtoggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">&#9776;</button>
     </nav>
+  </div>
+  <div id="mobile-menu" class="mobile-menu">
+    <a href="#listings">Listings</a>
+    <a href="#invest">For Investors</a>
+    <a href="#about">About</a>
+    <a href="#invest">Services</a>
+    <a href="#resources">Resources</a>
+    <a href="#blog">Blog</a>
+    <a href="#contact">Contact</a>
+    <a class="mobile-phonebtn" href="tel:7246817256">724-681-7256</a>
   </div>
 </header>
 
@@ -599,5 +628,33 @@
   </div>
 </footer>
 
+<script>
+(function(){
+  var toggle = document.querySelector('.navtoggle');
+  var menu = document.getElementById('mobile-menu');
+  if(!toggle || !menu) return;
+
+  function closeMenu(){
+    menu.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+  function openMenu(){
+    menu.classList.add('open');
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+
+  toggle.addEventListener('click', function(){
+    if (menu.classList.contains('open')) { closeMenu(); } else { openMenu(); }
+  });
+
+  menu.querySelectorAll('a').forEach(function(link){
+    link.addEventListener('click', closeMenu);
+  });
+
+  window.addEventListener('resize', function(){
+    if (window.innerWidth > 860) { closeMenu(); }
+  });
+})();
+</script>
 </body>
 </html>
