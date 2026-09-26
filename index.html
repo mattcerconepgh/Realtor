@@ -280,6 +280,22 @@
     .news-row{grid-template-columns:28px 1fr; row-gap:8px;}
     .news-row .news-link{grid-column:2; text-align:left; justify-self:start;}
   }
+  .news-carousel{border-top:1px solid var(--line);}
+  .news-carousel .news-row{display:none; border-bottom:none; padding-bottom:0;}
+  .news-carousel .news-row.is-active{display:grid;}
+  .news-controls{display:flex; align-items:center; justify-content:center; gap:16px; padding:18px 0 26px; border-bottom:1px solid var(--line);}
+  .news-nav{
+    background:none; border:1px solid var(--charcoal); width:34px; height:34px;
+    font-size:16px; line-height:1; cursor:pointer; color:var(--charcoal);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .news-nav:hover{background:var(--charcoal); color:var(--paper);}
+  .news-dots{display:flex; gap:8px;}
+  .news-dot{
+    width:8px; height:8px; padding:0; border-radius:50%; border:none;
+    background:var(--line); cursor:pointer;
+  }
+  .news-dot.is-active{background:var(--brick);}
 
   .type-ledger{border-top:1px solid var(--line);}
   .type-row{
@@ -483,11 +499,11 @@
 <section id="news">
   <div class="wrap">
     <div class="section-head">
-      <h2>Latest Pittsburgh real estate news</h2>
+      <h2>Latest Pittsburgh Real Estate News</h2>
       <span class="idx">Development &amp; infrastructure watch</span>
     </div>
-    <div class="news-ledger">
-      <div class="news-row">
+    <div class="news-carousel">
+      <div class="news-row is-active">
         <div class="idx">01</div>
         <div>
           <div class="news-meta">City of Pittsburgh / Riverlife</div>
@@ -513,6 +529,15 @@
           <p>The long-range plan behind future transit investment across Allegheny County — new rapid transit corridors, busway extensions, and station upgrades that shape which neighborhoods see the next wave of transit-driven demand and development.</p>
         </div>
         <a class="news-link" href="https://static1.squarespace.com/static/5e5b095245a44a402cf55654/t/656f8e32c3bac558c58df8a4/1701809719315/NEXTransit+-+FINAL-web+9-16-21-sm.pdf" target="_blank" rel="noopener">Read PDF →</a>
+      </div>
+      <div class="news-controls">
+        <button class="news-nav news-prev" type="button" aria-label="Previous story">‹</button>
+        <div class="news-dots">
+          <button class="news-dot is-active" type="button" aria-label="Story 1"></button>
+          <button class="news-dot" type="button" aria-label="Story 2"></button>
+          <button class="news-dot" type="button" aria-label="Story 3"></button>
+        </div>
+        <button class="news-nav news-next" type="button" aria-label="Next story">›</button>
       </div>
     </div>
   </div>
@@ -674,6 +699,30 @@
 
   window.addEventListener('resize', function(){
     if (window.innerWidth > 860) { closeMenu(); }
+  });
+})();
+</script>
+<script>
+(function(){
+  var slides = document.querySelectorAll('#news .news-row');
+  var dots = document.querySelectorAll('#news .news-dot');
+  var prev = document.querySelector('#news .news-prev');
+  var next = document.querySelector('#news .news-next');
+  if(!slides.length) return;
+  var current = 0;
+
+  function show(i){
+    slides[current].classList.remove('is-active');
+    dots[current].classList.remove('is-active');
+    current = (i + slides.length) % slides.length;
+    slides[current].classList.add('is-active');
+    dots[current].classList.add('is-active');
+  }
+
+  prev.addEventListener('click', function(){ show(current - 1); });
+  next.addEventListener('click', function(){ show(current + 1); });
+  dots.forEach(function(dot, i){
+    dot.addEventListener('click', function(){ show(i); });
   });
 })();
 </script>
