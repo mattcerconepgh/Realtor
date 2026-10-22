@@ -376,6 +376,19 @@
   .cta:hover{background:var(--gold-soft);}
   .cta.outline{background:transparent; border:1px solid var(--paper); color:var(--paper);}
   .cta.outline:hover{background:rgba(233,229,219,0.08);}
+  .invest-list{list-style:none; margin:16px 0 0; padding:0; border-top:1px solid var(--line-dark);}
+  .invest-list li{
+    padding:14px 0; border-bottom:1px solid var(--line-dark);
+    display:flex; gap:12px; align-items:baseline;
+    font-size:14.5px; color:rgba(233,229,219,0.85);
+  }
+  .invest-list li::before{content:"•"; color:var(--gold);}
+  .invest-callout{
+    padding:22px 24px; align-self:start;
+    background:rgba(233,229,219,0.06); border:1px solid var(--line-dark); border-left:3px solid var(--gold);
+  }
+  .invest-callout p{font-size:14.5px; color:rgba(233,229,219,0.85); margin:0; max-width:46ch;}
+  .invest-callout p + p{margin-top:14px;}
 
   /* playbook / process section */
   .playbook-ledger{
@@ -611,15 +624,27 @@
 
 <div class="pitch" id="invest">
   <div class="wrap">
-    <div class="pitch-grid" style="grid-template-columns:1fr;">
+    <h2 style="max-width:none;">Work With A Pittsburgh Investment Specialist</h2>
+    <p style="max-width:80ch;">If you're serious about investing here, you need more than listings. You need deal flow, market insight, and someone who can execute while you're not in the room. Most of my clients are out-of-state and rely on me to identify, underwrite, and close deals on their behalf.</p>
+    <div class="pitch-grid" style="margin-top:40px;">
       <div>
-        <h2 style="max-width:none;">Work With A Pittsburgh Investment Specialist</h2>
-        <p style="max-width:80ch;">If you're serious about investing here, you need more than listings. You need deal flow, market insight, and someone who can execute while you're not in the room. Most of my clients are out-of-state and rely on me to identify, underwrite, and close deals on their behalf.</p>
-        <div class="cta-line">
-          <a class="cta" href="talk-strategy.html">Start the process</a>
-          <a class="cta outline" href="playbook.html" style="margin-left:14px;">See The Playbook</a>
-        </div>
+        <h3 style="font-size:19px;">How I Help Out-of-State Investors</h3>
+        <ul class="invest-list">
+          <li>Identify deals that fit your buy box</li>
+          <li>Analyze properties with real numbers and local insight</li>
+          <li>Walk properties and give you honest feedback</li>
+          <li>Coordinate inspections, contractors, and due diligence</li>
+          <li>Negotiate and manage deals through closing</li>
+        </ul>
       </div>
+      <div class="invest-callout">
+        <p>Most of my clients are not local. The process is built so you can invest confidently without needing to be physically present.</p>
+        <p>Most investors I work with buy their first Pittsburgh property without ever visiting in person.</p>
+      </div>
+    </div>
+    <div class="cta-line">
+      <a class="cta" href="talk-strategy.html">Let's Talk Strategy</a>
+      <a class="cta outline" href="playbook.html" style="margin-left:14px;">See The Playbook</a>
     </div>
   </div>
 </div>
