@@ -39,7 +39,7 @@
   --gold:#F5B21A; --gold-ink:#1A1405;
   --night:#0B1626; --night-2:#12233A; --night-line:#22385A;
   /* Rent ramp */
-  --low:#2BC4B4; --mid:#F5B21A; --high:#FF5470;
+  --low:#2BC4B4; --mid:#F5B21A; --high:#FF5470; /* tier colors live in TIER_COLORS */
   /* Demand verdicts */
   --fast:#16A06A; --right:#2F6FD6; --slow:#E0485E;
   /* Map canvas: a night map in both themes, so the rent colors glow */
@@ -153,6 +153,11 @@ g.mid .street.l{stroke-opacity:.6}
 .zoom button:hover{background:var(--night-2)}
 .legend{position:absolute;left:16px;bottom:16px;background:rgba(11,22,38,.88);backdrop-filter:blur(8px);border:1px solid var(--night-line);border-radius:var(--radius-lg);padding:12px 14px;font-size:12px;color:#AFC0D4;max-width:300px}
 .legend b{color:#EEF4FB}
+.legend .tiers{display:grid;gap:5px;margin:9px 0 2px}
+.legend .tier{display:grid;grid-template-columns:14px auto 1fr;gap:8px;align-items:center}
+.legend .tsw{width:14px;height:14px;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.legend .tn{font-weight:700;color:#EEF4FB}
+.legend .tv{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:#DCE7F5}
 .legend .bar{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--low),var(--mid),var(--high));margin:8px 0 4px;width:240px;max-width:100%;box-shadow:0 0 14px rgba(245,178,26,.25)}
 .legend .ends{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;font-weight:600;color:#DCE7F5}
 .legend .keys{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:10px}
@@ -272,7 +277,7 @@ dialog button{margin-top:8px}
     <li><b>About 0.75 to 1.1 contacts a day</b> means it is priced right.</li>
     <li><b>Less than 0.75 contacts a day</b> means it is sitting and is likely overpriced.</li>
   </ul>
-  <p>Once an area has listings in that priced-right window, their rents replace the baseline. Areas tuned this way have a green ring on the map. Listings under three days old aren't counted yet.</p>
+  <p>Once an area has listings in that priced-right window, their rents replace the baseline. Their detail panel marks those sizes as tuned. Listings under three days old aren't counted yet.</p>
   <p><b>Small multifamily</b> shows rent per unit in older 2–4 unit buildings (duplexes, triplexes, fourplexes). These units usually rent below a comparable apartment or house because they lack a private yard and have less space. Many share utility meters, so compare rents net of any utilities the owner pays. Track contacts per day for each vacant unit separately.</p>
   <p>Condition, parking, laundry and utilities move rent inside any range. Treat these as the band where a typical, well-kept unit leases in a reasonable time.</p>
   <button class="cta" onclick="this.closest('dialog').close()">Close</button>
@@ -555,16 +560,31 @@ function mix(c1,c2,t){
   const a=p(c1),b=p(c2);return "rgb("+a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(",")+")";
 }
 let RAMP={min:0,max:1};
-function computeRamp(){
+/* Four price tiers: each holds about a quarter of the areas for the current view */
+const TIER_COLORS=["#2BC4B4","#5B7CFA","#F5B21A","#FF5470"];
+const TIER_NAMES=["Lower","Moderate","Upper","Top"];
+let TIERS={q:[0,0,0],span:[]};
+function tierOf(m){const q=TIERS.q;return m<=q[0]?0:m<=q[1]?1:m<=q[2]?2:3}
+function setTiers(){
+  const m=AREAS.map(a=>{const r=range(a,state.type,state.bed);return (r.lo+r.hi)/2}).sort((x,y)=>x-y);
+  if(!m.length){TIERS={q:[0,0,0],span:[]};return}
+  const at=p=>m[Math.min(m.length-1,Math.floor((m.length-1)*p))];
+  TIERS.q=[at(.25),at(.5),at(.75)];
+  TIERS.span=[0,1,2,3].map(i=>{const v=m.filter(x=>tierOf(x)===i);return v.length?[v[0],v[v.length-1]]:null});
+}
+const tierFmt=v=>money(round25(v));
+function legendTiers(){
+  return `<div class="tiers">${TIERS.span.map((s,i)=>s?`<div class="tier"><span class="tsw" style="background:${TIER_COLORS[i]}"></span><span class="tn">${TIER_NAMES[i]}</span><span class="tv">${s[0]===s[1]?tierFmt(s[0]):tierFmt(s[0])+" to "+tierFmt(s[1])}</span></div>`:"").join("")}</div>`;
+}
+function computeRamp(){ setTiers(); computeRamp0(); }
+function computeRamp0(){
   const mids = AREAS.map(a=>{const r=range(a,state.type,state.bed);return (r.lo+r.hi)/2});
   mids.sort((x,y)=>x-y);
   RAMP={min:mids[Math.floor(mids.length*0.05)],max:mids[Math.floor(mids.length*0.95)]};
 }
 function color(a){
   const r=range(a,state.type,state.bed), mid=(r.lo+r.hi)/2;
-  let t=(mid-RAMP.min)/(RAMP.max-RAMP.min); t=Math.max(0,Math.min(1,t));
-  const lo=hex('--low'),md=hex('--mid'),hi=hex('--high');
-  return t<.5?mix(lo,md,t*2):mix(md,hi,(t-.5)*2);
+  return TIER_COLORS[tierOf(mid)];
 }
 
 /* Map */
@@ -665,7 +685,7 @@ function paint(){
     const a=AREAS.find(x=>x.id===c.dataset.id);
     c.setAttribute("fill",color(a));
     c.classList.toggle("sel",state.sel===a.id);
-    c.classList.toggle("calibrated",isCalibrated(a));
+    c.classList.remove("calibrated");
     const vis = !state.q || a.name.toLowerCase().includes(state.q);
     c.style.opacity = vis?1:.15;
   });
@@ -680,8 +700,8 @@ function paint(){
   });
   const L=document.getElementById('legend');
   L.innerHTML=`<div><b>${TYPE_LABEL[state.type]}, ${bedLabel(state.bed)}</b> midpoint ${state.type==="mf"?"rent per unit":"rent"}</div>
-    <div class="bar"></div><div class="ends"><span>${money(round25(RAMP.min))} or less</span><span>${money(round25(RAMP.max))}+</span></div>
-    <div class="keys"><span><span class="ring"></span>Tuned to listing demand</span><span><span class="ishield">79</span>Interstate</span><span><span class="rshield">28</span>Major route</span></div>`;
+    ${legendTiers()}
+    <div class="keys"><span><span class="ishield">79</span>Interstate</span><span><span class="rshield">28</span>Major route</span></div>`;
   applyView();
 }
 const measureCtx=document.createElement("canvas").getContext("2d");
@@ -799,7 +819,7 @@ function showTip(a,e,hoodName){
     return `<div class="hr${on?" on":""}"><span class="sw" style="background:${on?color(a):"#4A6282"}"></span><span>${bedLabel(b)}</span><span class="v">${money(r.lo)}–${money(r.hi)}</span></div>`}).join("");
   const tuned=BEDS[t].some(b=>range(a,t,b).src==="calib");
   tip.innerHTML=`<div class="hn">${a.name}</div><div class="hs">${hoodName&&hoodName!==a.name?hoodName+" · part of this area":a.county+" County"} · ${TYPE_LABEL[t]}${t==="mf"?" (per unit)":""}</div>${rows}
-    <div class="hf${tuned?" tuned":""}">${tuned?"Tuned to live listing demand":"Baseline estimate · click for details"}</div>`;
+    <div class="hf">Click for details</div>`;
   tip.style.display="block";
   const tw=tip.offsetWidth, th=tip.offsetHeight; let x=e.clientX-wr.left+18, y=e.clientY-wr.top-th/2;
   if(x+tw>wr.width-8) x=e.clientX-wr.left-tw-18;
@@ -832,7 +852,7 @@ function renderList(){
     items.forEach(a=>{
       const r=range(a,state.type,state.bed); const b=document.createElement("button");
       b.className="arow"+(state.sel===a.id?" sel":""); b.type="button";
-      b.innerHTML=`<span>${a.name}${isCalibrated(a)?'<span class="cal">tuned</span>':""}</span><span class="rng" style="background:${color(a)}">${money(r.lo)}–${money(r.hi)}</span>`;
+      b.innerHTML=`<span>${a.name}</span><span class="rng" style="background:${color(a)}">${money(r.lo)}–${money(r.hi)}</span>`;
       b.onclick=()=>{select(a.id,true)};
       b.onmouseenter=()=>{hoverId=a.id;applyView()}; b.onmouseleave=()=>{hoverId=null;applyView()};
       d.appendChild(b);
@@ -870,7 +890,7 @@ function renderDrawer(){
     <section><h3>Apartments</h3><table class="rents"><thead><tr><th>Size</th><th>Rent range</th><th>Basis</th></tr></thead><tbody>${rows("apt")}</tbody></table></section>
     <section><h3>Houses</h3><table class="rents"><thead><tr><th>Size</th><th>Rent range</th><th>Basis</th></tr></thead><tbody>${rows("sfh")}</tbody></table></section>
     <section><h3>Small multifamily <span class="note" style="font-family:var(--body);font-size:13px;font-weight:400">per unit, 2–4 unit buildings</span></h3><table class="rents"><thead><tr><th>Size</th><th>Rent range</th><th>Basis</th></tr></thead><tbody>${rows("mf")}</tbody></table></section>
-    <section><h3>Listing demand</h3><div class="log">${logHtml}</div></section>${form}`;
+    ${state.canWrite?`<section><h3>Listing demand <span class="note" style="font-family:var(--body);font-size:13px;font-weight:400">only you see this</span></h3><div class="log">${logHtml}</div></section>`:""}${form}`;
   dr.classList.add("open");
   document.getElementById("closeDr").onclick=()=>{state.sel=null;paint();renderList();renderDrawer()};
   dr.querySelectorAll(".del").forEach(b=>b.onclick=()=>{calib.listings.splice(+b.dataset.i,1);save("Removed.")});
